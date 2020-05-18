@@ -62,13 +62,6 @@ So, how to characterize the runtimes of functions:
 4. Eliminate multiplicative constants
 ![img](order.png) -> think geometrically (the area)
 
-## Formalizing Order of Growth
-- Big-Theta: $R(N) \in \Theta(f(N))$
-- Examples:
-  - $N^3 + 3N^4 \in \Theta(N^4)$
-- Formal definition:
-  - $R(N) \in \Theta(f(N))$: means there exist positive constants $k_1$ and $k_2$ such that: $k_1 * f(N) \leq R(N) \leq k_2 * f(N)$
-
 ## Two ways of approaching our runtime analysis
 - Counting the number of operations
 - Geometric argument 
@@ -88,8 +81,8 @@ public static void printParty(int N) {
 = $C(N) = 1 + 2 + 4 + ... + N (if N is a power of 2).$
 
 In sum, two important sum to memorize:
-1. $1 + 2 + 3 + ... + Q = Q(Q+1)/2 = \Theta(Q^2)$
-2. $1 + 2 + 4 + ... + Q = 2Q - 1 = \Theta(Q)$
+1. $1 + 2 + 3 + ... + Q = Q(Q+1)/2 = \Theta(Q^2)$ (Sum of First Natural Numbers)
+2. $1 + 2 + 4 + ... + Q = 2Q - 1 = \Theta(Q)$ (Sum of First Powers of 2)
 
 ## Recursion
 ```java
@@ -115,5 +108,64 @@ Applying this formula to the sum of $1 + 2 + 4 + ... + Q = 2Q - 1 = \Theta(Q)$
   - Think of $C$ as the time we need to cut the array into half: $1 = (N/2)^C$ -> $C = log_2 N$ 
   - Exact count = $C = log_2 N \text{(floor)} + 1$
 - Requires the list to be in sorted order
+- Logarithm is really good!
+![img](log.png)
+
+## Selection Sort
+- Find the smallest unfixed item, move it to the front, and 'fix' it
+- Sort the remaining unfixed items using selection sort
+- Runtime of selection sort is $\Theta(N^2)$, triangle area
+
+Arbitrary Unit of Time: for thinking under a general sense of time
+## Merge Sort
+- Merging: 
+  - Having two sorted arrays that we want to combine into a single big sorted array.
+  - Runtime: $\Theta(N)$, depending on the length of the array
+![img](merge.png)
+- Mergesort does merges all the way down (divide and conquer)
+  - Runtime: $\Theta(N \log N)$
+  - For k layers with size N list, k is a function of N: $log_2 N$
+  - Since total runtime is Nk, the final outcome is $\Theta(N log_2 N)$
+![img](mergesort.png)
 
 
+## Runtime Analysis Subtleties
+- Big Theta $\Theta$ expresses exact order of growth for runtime in terms of N
+  - If runtime depends on more factors than N, may need different standard.
+
+## Big Theta vs. Big O
+- Big Theta tells the worst senario while Big O tells the runtime range of given algorithm
+  - For example, printArray and traversing 2d matrix belong to $O(N^2)$
+- The usefulness of Big O:
+  - Simpler statements
+  - Sometimes don't know the exact runtime, so use O to give an upper bound
+  - Easier to prove
+
+## Formalizing Order of Growth
+- Big-Theta: 
+  - $R(N) \in \Theta(f(N))$ means $k_1 * f(N) \leq R(N) \leq k_2 * f(N)$ for two positive constants $k_1$ and $k_2$
+  - Examples:
+    - $N^3 + 3N^4 \in \Theta(N^4)$
+- Big-Omega: 
+  - $R(N) \in \Omega(f(N))$ means $k_1 * f(N) \leq R(N)$ for positive constant $k_1$
+  - Big Theta: thought of as "equals"
+  - Big Omega: thought of as "greater than or equal"
+    - $N^3 + 3N^4 \in \Theta(N^4)$
+    - $N^3 + 3N^4 \in \Omega(N^4)$
+    - $N^3 + 3N^4 \in \Omega(N^3)$
+    - $N^3 + 3N^4 \in \Omega(\log N)$
+    - $N^3 + 3N^4 \in \Omega(1)$
+- Big-O:
+  - $R(N) \in O(f(N))$ means $R(N) \leq k_1 * f(N)$ for positive constant $k_1$
+- If $R(N) = O(f(N))$ and $R(N) = \Omega(f(N))$, then $R(N) = \Theta(f(N))$, this is often been used to prove algorithm's runtime
+- Common conceptual errors:
+  - Big O does NOT mean worst case
+  - Big Omega does NOT mean best case
+  
+![img](three_order.png)
+
+## Amortized Analysis
+- Resizes to accommodate additional entries:
+  - When the array inside the ArrayList is full, double in size
+  - Most add operations are constant time, but some are very expensive
+  - An aspect to view these problem is using average runtime cost of the algorithm
