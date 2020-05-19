@@ -2,12 +2,125 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
+import byog.TileEngine.Tileset;
+import edu.princeton.cs.introcs.StdDraw;
 
-public class Game {
+import java.awt.*;
+import java.util.Scanner;
+
+public class Game extends WorldGeneratorFinal {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
     public static final int WIDTH = 80;
-    public static final int HEIGHT = 30;
+    public static final int HEIGHT = 50;
+    public static final int border = 3;
+    private boolean gameOver = false;
+    private int health = 5;
+    private static final String[] ENCOURAGEMENT = {"You can do this!", "I believe in you!",
+            "You got this!", "You're a star!", "Go Bears!",
+            "Too easy for you!", "Wow, so impressive!"};
+
+    public void startGame() {
+        TERenderer ter = new TERenderer();
+        ter.initialize(WIDTH, HEIGHT+border);
+        TETile[][] world = new TETile[WIDTH][HEIGHT];
+        Position[][] worldP = null;
+        homepage();
+
+        String choose = readInput();
+        if (choose.equals("1")) {
+            System.out.println("Start a new game!");
+            worldP = addHexagon(world);
+        } else {
+            System.out.println("Load previous game!");
+            worldP = addHexagon(world);
+        }
+        Position player = fetchPlayer(worldP);
+        ter.renderFrame(world);
+        displayBar();
+        readAction(worldP, world, player);
+    }
+
+    public void readAction(Position[][] posMap, TETile[][] world, Position player) {
+        String input = "";
+        boolean passable = false;
+        int x = player.x;
+        int y = player.y;
+
+
+        while (!gameOver) {
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+            int xOffset = 0;
+            int yOffset = 0;
+            char key = StdDraw.nextKeyTyped();
+            if (key == 'w') yOffset = 1;
+            else if (key == 'a') xOffset = -1;
+            else if (key == 's') yOffset = -1;
+            else if (key == 'd') xOffset = 1;
+
+            int xNew = x + xOffset;
+            int yNew = y + yOffset;
+
+            if (xNew >= 0 && xNew < WIDTH && yNew >= 0 && yNew < HEIGHT) {
+                if (posMap[xNew][yNew].getTType() == Tileset.FLOOR) {
+                    posMap[xNew][yNew].setTType(Tileset.PLAYER);
+                    posMap[x][y].setTType(Tileset.FLOOR);
+                    x = xNew;
+                    y = yNew;
+                    fetchPositionInfo(posMap, world);
+                    ter.renderFrame(world);
+                } else if (posMap[xNew][yNew].getTType() == Tileset.LOCKED_DOOR) {
+                    StdDraw.clear(Color.black);
+                    Font font = new Font("Monaco", Font.BOLD, 30);
+                    StdDraw.setFont(font);
+                    StdDraw.setPenColor(Color.white);
+                    StdDraw.text(WIDTH/(float)2, HEIGHT/(float)2, "Congratulation! You Pass!");
+                    StdDraw.show();
+                    gameOver = true;
+                } else {
+                    System.out.println("Enter direction not passable!");
+
+                }
+            }
+        }
+    }
+
+    public String readInput() {
+        String input = "";
+        while (input.length() < 1) {
+            if (!StdDraw.hasNextKeyTyped()) {
+                continue;
+            }
+            char key = StdDraw.nextKeyTyped();
+            input += String.valueOf(key);
+        }
+        return input;
+    }
+
+    public void homepage() {
+        Font font = new Font("Monaco", Font.BOLD, 36);
+        StdDraw.setFont(font);
+        StdDraw.setPenColor(Color.white);
+        StdDraw.text(WIDTH/(float)2 + 1, HEIGHT/(float)2 + 4, "Warrior! Welcome to the RandWorld");
+
+        font = new Font("Monaco", Font.BOLD, 24);
+        StdDraw.setFont(font);
+        StdDraw.setPenColor(Color.red);
+        StdDraw.text(WIDTH/(float)2 + 1, HEIGHT/(float)2 - 1, "(1) Start a new game or (2) Load saved game");
+        StdDraw.show();
+    }
+
+    public void displayBar() {
+        Font smallFont = new Font("Monaco", Font.BOLD, 20);
+        StdDraw.setFont(smallFont);
+        StdDraw.setPenColor(Color.white);
+        StdDraw.textLeft(1, HEIGHT+border-1, "Health: " + health);
+        StdDraw.textRight(WIDTH - 1, HEIGHT+border-1, ENCOURAGEMENT[health % ENCOURAGEMENT.length]);
+        StdDraw.line(0, HEIGHT+border-2, WIDTH, HEIGHT+border-2);
+        StdDraw.show();
+    }
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
