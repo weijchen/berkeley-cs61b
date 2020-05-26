@@ -6,6 +6,8 @@ import byog.TileEngine.Tileset;
 import edu.princeton.cs.introcs.StdDraw;
 
 import java.awt.*;
+import java.io.*;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Game extends WorldGeneratorFinal {
@@ -15,35 +17,52 @@ public class Game extends WorldGeneratorFinal {
     public static final int HEIGHT = 50;
     public static final int border = 3;
     private boolean gameOver = false;
-    private int health = 5;
+    private boolean gameSave = false;
+    private static final int health = 5;
+    private static TETile[][] world = new TETile[WIDTH][HEIGHT];
+    private static Position[][] worldP = null;
+    private static Position player = null;
     private static final String[] ENCOURAGEMENT = {"You can do this!", "I believe in you!",
             "You got this!", "You're a star!", "Go Bears!",
             "Too easy for you!", "Wow, so impressive!"};
 
-    public void startGame() {
+    public void startGame() throws IOException, ClassNotFoundException {
         TERenderer ter = new TERenderer();
         ter.initialize(WIDTH, HEIGHT+border);
-        TETile[][] world = new TETile[WIDTH][HEIGHT];
-        Position[][] worldP = null;
         homepage();
 
         String choose = readInput();
         if (choose.equals("1")) {
             System.out.println("Start a new game!");
             worldP = addHexagon(world);
+            player = fetchPlayer(worldP);
+
         } else {
             System.out.println("Load previous game!");
-            worldP = addHexagon(world);
+            FileInputStream fis = new FileInputStream("out.tmp");
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            worldP = (Position[][]) ois.readObject();
+
+            ois.close();
+            player = fetchPlayer(worldP);
+
+            StdDraw.clear(Color.black);
+            Font font = new Font("Monaco", Font.BOLD, 30);
+            StdDraw.setFont(font);
+            StdDraw.setPenColor(Color.white);
+            StdDraw.text(WIDTH/(float)2, HEIGHT/(float)2, "Load from saved game!");
+            StdDraw.show();
+            StdDraw.pause(1500);
         }
-        Position player = fetchPlayer(worldP);
+        System.out.println(player);
+        fetchPositionInfo(worldP, world);
+//        player = fetchPlayer(worldP);
         ter.renderFrame(world);
         displayBar();
-        readAction(worldP, world, player);
+        readAction();
     }
 
-    public void readAction(Position[][] posMap, TETile[][] world, Position player) {
-        String input = "";
-        boolean passable = false;
+    public void readAction() throws IOException {
         int x = player.x;
         int y = player.y;
 
@@ -59,29 +78,47 @@ public class Game extends WorldGeneratorFinal {
             else if (key == 'a') xOffset = -1;
             else if (key == 's') yOffset = -1;
             else if (key == 'd') xOffset = 1;
+            else if (key == 'q') {
+                gameSave = true;
+            }
 
             int xNew = x + xOffset;
             int yNew = y + yOffset;
 
-            if (xNew >= 0 && xNew < WIDTH && yNew >= 0 && yNew < HEIGHT) {
-                if (posMap[xNew][yNew].getTType() == Tileset.FLOOR) {
-                    posMap[xNew][yNew].setTType(Tileset.PLAYER);
-                    posMap[x][y].setTType(Tileset.FLOOR);
-                    x = xNew;
-                    y = yNew;
-                    fetchPositionInfo(posMap, world);
-                    ter.renderFrame(world);
-                } else if (posMap[xNew][yNew].getTType() == Tileset.LOCKED_DOOR) {
-                    StdDraw.clear(Color.black);
-                    Font font = new Font("Monaco", Font.BOLD, 30);
-                    StdDraw.setFont(font);
-                    StdDraw.setPenColor(Color.white);
-                    StdDraw.text(WIDTH/(float)2, HEIGHT/(float)2, "Congratulation! You Pass!");
-                    StdDraw.show();
-                    gameOver = true;
-                } else {
-                    System.out.println("Enter direction not passable!");
+            if (gameSave) {
+                FileOutputStream fos = new FileOutputStream("out.tmp");
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(worldP);
+                oos.close();
+                System.out.println("Exit the game!");
+                StdDraw.clear(Color.black);
+                Font font = new Font("Monaco", Font.BOLD, 30);
+                StdDraw.setFont(font);
+                StdDraw.setPenColor(Color.white);
+                StdDraw.text(WIDTH/(float)2, HEIGHT/(float)2, "Game Saved!");
+                StdDraw.show();
+                gameOver = true;
+            } else {
+                if (xNew >= 0 && xNew < WIDTH && yNew >= 0 && yNew < HEIGHT) {
+                    if (worldP[xNew][yNew].getTType() == Tileset.FLOOR) {
+                        worldP[xNew][yNew].setTType(Tileset.PLAYER);
+                        worldP[x][y].setTType(Tileset.FLOOR);
+                        x = xNew;
+                        y = yNew;
+                        fetchPositionInfo(worldP, world);
+                        ter.renderFrame(world);
+                    } else if (worldP[xNew][yNew].getTType() == Tileset.LOCKED_DOOR) {
+                        StdDraw.clear(Color.black);
+                        Font font = new Font("Monaco", Font.BOLD, 30);
+                        StdDraw.setFont(font);
+                        StdDraw.setPenColor(Color.white);
+                        StdDraw.text(WIDTH/(float)2, HEIGHT/(float)2, "Congratulation! You Pass!");
+                        StdDraw.show();
+                        gameOver = true;
+                    } else {
+                        System.out.println("Enter direction not passable!");
 
+                    }
                 }
             }
         }

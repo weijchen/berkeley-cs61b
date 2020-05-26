@@ -3,7 +3,9 @@ package byog.Core;
 import byog.TileEngine.TETile;
 import byog.TileEngine.Tileset;
 
-public class Position {
+import java.io.Serializable;
+
+public class Position implements Serializable {
     protected int x;
     protected int y;
     public boolean passable = true;

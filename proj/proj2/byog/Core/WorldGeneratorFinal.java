@@ -33,6 +33,19 @@ public class WorldGeneratorFinal {
                 }
             }
         }
+        System.out.println("cannot find player");
+        return null;
+    }
+
+    public static TETile fetchPlayer(TETile[][] world) {
+        for (TETile[] pRow : world) {
+            for (TETile p : pRow) {
+                if (p.description().equals("player")) {
+                    return p;
+                }
+            }
+        }
+        System.out.println("cannot find player");
         return null;
     }
 

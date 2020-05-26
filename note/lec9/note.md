@@ -147,4 +147,106 @@ private int find(int p) {
 
 # Binary Search Trees (BST)
 
-## 
+## Analysis of an OLLMap<Character, ?>
+- For **order linked list**, some operations take worst case linear time ($\Theta(N)$): get(), containsKey(), put().
+- Optimization:
+  - Extra links: add (random) links
+  - Change the entry point: move pointer to middle and flip left links
+  - Ultimately, halve every sublists, and build **Binary Search Tree**
+
+## What is a Tree?
+- A tree consists of:
+  - A set of nodes
+  - A set of edges that connect those nodes (Constraint: There is exactly one path between any two nodes)
+
+## Binary Search Trees
+- A rooted binary tree with the BST property
+  - For every node X in the tree:
+    - Every key in the left subtree is less than X's key
+    - Every key in the right subtree is greater than X's key
+- Ordering: complete, transitive, and antisymmetric. Furthermore, no duplicate keys allowed in CS61B
+- BST Search: in the worst case, where $N$ is the number of nodes, runtime is $\Theta(\log N)$
+- BST insert: 
+- BST delete: three cases (no child, one child, *two children*)
+  - For two children case, we need to find the maximum node in left subtree or the minimum node in right subtree
+
+```java
+// pseudo code for find
+static BST find(BST T, key sk) {
+    if (T == null)
+        return null;
+    if (sk.keyequals(T.label()))    // .label() returns the value of the given key
+        return T;
+    else if (sk < T.label())
+        return find(T.left, sk);
+    else
+        return find(T.right, sk);
+}
+
+// pseudo code for insert
+static BST insert(BST T, Key ik) {
+    if (T == null)
+        return new BST(ik);
+    if (ik < T.label())
+        T.left = insert(T.left, ik);
+    else if (ik > T.label())
+        T.right = insert(T.right, ik);
+    return T;
+}
+
+// A common rookie bad habit to avoid (ARMS LENGTH RECURSION)
+if (T.left == null)
+    T.left = new BST(ik);
+else if (T.right == null)
+    T.right = new BST(ik);
+```
+
+# Balanced Search Trees
+- 2-3-4 and 2-3 Trees (a.k.a. B-Trees)
+- Tree Rotation
+- Red-Black Trees
+
+## Tree Rotation
+- Keep the node order when adding new node into the tree
+![img](rotation.png)
+- Rotate after each insertion and deletion to maintain balance
+
+## Search Trees:
+- Common types
+  - Binary search trees: require rotations to maintain balance
+    - AVL, weight-balanceing, **red-black**
+  - Treaps
+  - Splay trees
+  - **2-3** / **2-3-4 trees** / **B-trees**: no rotations required, but is often not practical to implmement
+
+**Splitting Tree (2-3, 2-3-4 trees) a.k.a. B-trees**
+- "Overstuffed tree": always has balanced height, because leaf depths never change; add node to exsisting leaf
+  - Problem: leaf nodes can get too large -> solution: set a cap -> advanced solution: create a third child for saving in-between values
+    - insert node costs $Z$ compares, but that's OK since $Z$ is capped (where $Z$ is the # of items in a node)
+- For Splitting-trees (2-3, 2-3-4 trees), we only increase the depth when we need to split the root
+  - All operations have guaranteed $\Theta(\log N) = \Theta(H)$ time. ($H$: Height)
+  - Height: Between $\log_M(N)$ and $\log_2(N)$. ($M$: max number of children)
+
+![img](split_tree.png) left: 2-3-4 tree / right: 2-3 tree
+
+- B-Trees have two specific contexts:
+  - Small $M$ ($M=3$ or $M=4$): only conceptual
+  - $M$ is very large (> thousand): used in practice for databases and filesystems
+- Importantly, B-Trees are a real pain to implement, issues include:
+  - Maintaining different node types
+  - Interconversion of nodes between 2-nodes and 3-nodes
+  - Walking up the tree to spli nodes
+
+Red-Black Trees
+- Use rotations to ensure the isometry (structurally identical to a 2-3 tree)
+- Since 2-3 trees are balanced, rotations on BST will ensure balance
+- Solution
+  - Possibility 1: Create dummy "glue" nodes
+![img](poss1.png)
+  - Possibility 2: Create "glue" links with the smaller item *off to the left*
+![img](poss2.png)
+- 同一階層的 value 會透過紅色的 link 連接起來，往上下層的會用黑色的 link 連接起來，這邊的 link 皆為 pointer，只是在形式上做出區分
+![img](redblacktree.png)
+    - Some properties: 
+      - traverse to two nodes at the same level of the tree will have the same amount of black links
+      - For any 2-3 tree, there exists a corresponding red-black tree that has depth no more than 2 times the depth of the 2-3 tree
