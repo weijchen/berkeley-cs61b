@@ -86,7 +86,21 @@ public class TestBSTMap {
         assertTrue(b.get("hi") != null);
     }
 
+//    public static void main(String[] args) {
+//        jh61b.junit.TestRunner.runTests(TestBSTMap.class);
+//    }
+
     public static void main(String[] args) {
-        jh61b.junit.TestRunner.runTests(TestBSTMap.class);
+        BSTMap<String, Integer> bstmap = new BSTMap<>();
+        bstmap.put("hello", 5);
+        bstmap.put("cat", 10);
+        bstmap.put("fish", 22);
+//        System.out.println(bstmap.get("fish"));
+        bstmap.put("fish", 23);
+        bstmap.put("zebra", 90);
+        System.out.println(bstmap.keySet().toString());
+//        System.out.println(bstmap.get("fish"));
+//        System.out.println(bstmap.get("zebra"));
+//        System.out.println(bstmap.size());
     }
 }

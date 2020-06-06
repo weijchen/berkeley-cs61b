@@ -1,5 +1,8 @@
 package lab9;
 
+import edu.princeton.cs.algs4.SET;
+
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -44,7 +47,13 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      *  or null if this map contains no mapping for the key.
      */
     private V getHelper(K key, Node p) {
-        throw new UnsupportedOperationException();
+        if (key.compareTo(p.key) == 0) {
+            return p.value;
+        } else if (key.compareTo(p.key) > 0){
+            return getHelper(key, p.right);
+        } else {
+            return getHelper(key, p.left);
+        }
     }
 
     /** Returns the value to which the specified key is mapped, or null if this
@@ -52,14 +61,29 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public V get(K key) {
-        throw new UnsupportedOperationException();
+        if (size() == 0) return null;
+        else return getHelper(key, root);
     }
 
     /** Returns a BSTMap rooted in p with (KEY, VALUE) added as a key-value mapping.
       * Or if p is null, it returns a one node BSTMap containing (KEY, VALUE).
      */
     private Node putHelper(K key, V value, Node p) {
-        throw new UnsupportedOperationException();
+        if (p == null) {
+            size += 1;
+            return new Node(key, value);
+        } else {
+            if (key.compareTo(p.key) > 0) {
+                System.out.println("higher");
+                p.right = putHelper(key, value, p.right);
+            } else if (key.compareTo(p.key) == 0) {
+                p.value = value;    // update the value
+            } else {
+                System.out.println("lower");
+                p.left = putHelper(key, value, p.left);
+            }
+        }
+        return p;
     }
 
     /** Inserts the key KEY
@@ -67,21 +91,35 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public void put(K key, V value) {
-        throw new UnsupportedOperationException();
+        if (root == null) {
+            root = new Node(key, value);
+            size += 1;
+        } else {
+            putHelper(key, value, root);
+        }
     }
 
     /* Returns the number of key-value mappings in this map. */
     @Override
     public int size() {
-        throw new UnsupportedOperationException();
+        return size;
     }
 
     //////////////// EVERYTHING BELOW THIS LINE IS OPTIONAL ////////////////
 
+    /* keySet helper function */
+    public Set<K> keySetHelper(Set<K> setKey, Node p) {
+        if (p.key != null) setKey.add(p.key);
+        if (p.left != null) keySetHelper(setKey, p.left);
+        if (p.right != null) keySetHelper(setKey, p.right);
+        return setKey;
+    }
+
     /* Returns a Set view of the keys contained in this map. */
     @Override
     public Set<K> keySet() {
-        throw new UnsupportedOperationException();
+        Set<K> setKey = new HashSet<>();
+        return keySetHelper(setKey, root);
     }
 
     /** Removes KEY from the tree if present
