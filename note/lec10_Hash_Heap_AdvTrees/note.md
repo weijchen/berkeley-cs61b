@@ -80,6 +80,7 @@ public class Tree1A<Key> {
   Tree1A right;
 }
 
+
 // 1b
 public class Tree1B<Key> {
   Key k;

@@ -28,7 +28,7 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
      */
     private static int leftIndex(int i) {
         /* TODO: Your code here! */
-        return 0;
+        return 2 * i;
     }
 
     /**
@@ -36,7 +36,7 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
      */
     private static int rightIndex(int i) {
         /* TODO: Your code here! */
-        return 0;
+        return 2 * i + 1;
     }
 
     /**
@@ -44,7 +44,7 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
      */
     private static int parentIndex(int i) {
         /* TODO: Your code here! */
-        return 0;
+        return i / 2;
     }
 
     /**
@@ -106,9 +106,18 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
     private void swim(int index) {
         // Throws an exception if index is invalid. DON'T CHANGE THIS LINE.
         validateSinkSwimArg(index);
-
         /** TODO: Your code here. */
-        return;
+        while (contents[parentIndex(index)] != null) {
+            int parentInt = parentIndex(index);
+            int childInt = index;
+
+            if (contents[parentInt].myPriority > contents[childInt].myPriority) {
+                swap(parentIndex(index), index);
+                index = parentInt;
+            } else {
+                break;
+            }
+        }
     }
 
     /**
@@ -117,9 +126,32 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
     private void sink(int index) {
         // Throws an exception if index is invalid. DON'T CHANGE THIS LINE.
         validateSinkSwimArg(index);
+        int curInt = index;
+        int leftChildInt = leftIndex(index);
+        boolean hasLeft = leftChildInt <= size;
+        int rightChildInt = rightIndex(index);
+        boolean hasRight = rightChildInt <= size;
 
-        /** TODO: Your code here. */
-        return;
+        if (hasLeft) {
+            if (hasRight) {
+                if (contents[rightChildInt].myPriority < contents[leftChildInt].myPriority) {   // right is smaller
+                    if (contents[rightChildInt].myPriority < contents[curInt].myPriority) {
+                        swap(rightChildInt, curInt);
+                        sink(rightChildInt);
+                    }
+                } else {
+                    if (contents[leftChildInt].myPriority < contents[curInt].myPriority) {
+                        swap(leftChildInt, curInt);
+                        sink(leftChildInt);
+                    }
+                }
+            } else {
+                if (contents[leftChildInt].myPriority < contents[curInt].myPriority) {
+                    swap(leftChildInt, curInt);
+                    sink(leftChildInt);
+                }
+            }
+        }
     }
 
     /**
@@ -134,6 +166,9 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         }
 
         /* TODO: Your code here! */
+        contents[size + 1] = new Node(item, priority);
+        size += 1;
+        swim(size);
     }
 
     /**
@@ -143,7 +178,7 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
     @Override
     public T peek() {
         /* TODO: Your code here! */
-        return null;
+        return contents[1].myItem;
     }
 
     /**
@@ -158,7 +193,15 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
     @Override
     public T removeMin() {
         /* TODO: Your code here! */
-        return null;
+        if (size == 0) return null;
+
+        swap(1, size);
+        T retVal = contents[size].myItem;
+        size -= 1;
+
+        if (size > 1) sink(1);
+
+        return retVal;
     }
 
     /**
@@ -378,6 +421,8 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
         pq.insert("b", 2);
         pq.insert("c", 3);
         pq.insert("d", 4);
+        System.out.println(pq);
+
         String removed = pq.removeMin();
         assertEquals("a", removed);
         assertEquals(9, pq.size());
@@ -412,6 +457,10 @@ public class ArrayHeap<T> implements ExtrinsicPQ<T> {
             assertEquals(expected[i], pq.removeMin());
             i += 1;
         }
+    }
+
+    public static void main(String[] args) {
+        jh61b.junit.textui.runClasses(ArrayHeap.class);
     }
 
 }
