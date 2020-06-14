@@ -405,6 +405,17 @@ public class Maze implements Observer {
         }
     }
 
+    private void drawEdgesCycle(int i, MazeExplorer me) {
+        int x = toX(i);
+        int y = toY(i);
+        if (me.edgeTo[i] < Integer.MAX_VALUE) {
+            StdDraw.setPenColor(StdDraw.RED);
+            int fromX = toX(me.edgeTo[i]);
+            int fromY = toY(me.edgeTo[i]);
+            StdDraw.line(fromX + 0.5, fromY + 0.5, x + 0.5, y + 0.5);
+        }
+    }
+
     // draw the maze
     private void draw() {
         StdDraw.setPenColor(StdDraw.BLACK);
@@ -454,7 +465,7 @@ public class Maze implements Observer {
 
 
     // a test client
-   /* public static void main(String[] args) {
+   /*public static void main(String[] args) {
         int N = Integer.parseInt(args[0]);
         int rseed = Integer.parseInt(args[1]);
 
