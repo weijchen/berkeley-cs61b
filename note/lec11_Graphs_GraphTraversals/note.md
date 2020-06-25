@@ -85,8 +85,5 @@ public class Paths {
   - For each unmarked neighbor of v: mark, add to queue, set its edgTo = v
 - Runs in V+E time and uses V space
 
-
-
-
-
-
+# HOMEWORK
+- TODO: A* algorithm
